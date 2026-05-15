@@ -145,11 +145,21 @@ app.post('/api/admin/noshow/:id', adminAuth, async (req, res) => {
 
 // --- SERVE PAGES ---
 
-// Public VIP Page
+
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'views/calendar.html')));
 
+// NEW: Login Page
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'views/login.html')));
+
 // Protected Management Page
-app.get('/manage', adminAuth, (req, res) => res.sendFile(path.join(__dirname, 'views/management.html')));
+app.get('/manage', (req, res) => {
+    // Elegant redirect inline if session doesn't exist
+    if (req.session && req.session.isAdmin) {
+        return res.sendFile(path.join(__dirname, 'views/management.html'));
+    }
+    res.redirect('/login');
+});
+
 
 // Start Server
 const PORT = process.env.PORT || 3000;
