@@ -1,41 +1,62 @@
 const express = require('express');
 const path = require('path');
 const pool = require('./database/pool'); // Imports your native mariadb pool
+const session = require('express-session'); // Added express-session
 require('dotenv').config();
 
 const app = express();
 app.use(express.json());
 
+// --- SESSION CONFIGURATION ---
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'fallback_secure_string_12345',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        maxAge: 15 * 60 * 1000, // Session auto-expires after 15 minutes of inactivity
+        secure: false,          // Set to true if your server uses HTTPS/SSL in production
+        httpOnly: true          // Helps protect against Cross-Site Scripting (XSS) attacks
+    }
+}));
+
 // --- AUTH MIDDLEWARE ---
-// Protects management routes using credentials from .env
+// Protects management routes by checking the active session state
 const adminAuth = (req, res, next) => {
-    const auth = { user: process.env.ADMIN_USERNAME, pass: process.env.ADMIN_PASSWORD };
-    const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
-    const [user, pass] = Buffer.from(b64auth, 'base64').toString().split(':');
-    
-    if (user === auth.user && pass === auth.pass) return next();
-    
-    res.set('WWW-Authenticate', 'Basic realm="401"');
-    res.status(401).send('Authentication required.');
+    if (req.session && req.session.isAdmin) {
+        return next();
+    }
+    res.status(401).json({ error: 'Authentication required. Session expired.' });
 };
+
+// --- AUTHENTICATION API ENDPOINTS ---
+
+// Login endpoint
+app.post('/api/admin/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+        req.session.isAdmin = true; // Store authenticated status inside the session
+        return res.json({ success: true, message: 'Logged in successfully' });
+    }
+    
+    res.status(401).json({ error: 'Invalid credentials' });
+});
+
+// Explicit Logout endpoint
+app.post('/api/admin/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Could not log out');
+        }
+        res.clearCookie('connect.sid'); // Clears the session identifier cookie from browser
+        res.sendStatus(200);
+    });
+});
 
 // --- VIP PUBLIC API ---
 
 // Fetch available slots
-// app.get('/api/available-slots', async (req, res) => {
-//     try {
-//         // With 'mariadb' package, you query the pool directly
-//         const rows = await pool.query(
-//             "SELECT slot_id, start_time FROM booking_slots WHERE is_available = TRUE AND start_time >= NOW()"
-//         );
-//         // Mapping 'slot_id' to 'id' for FullCalendar compatibility
-//         res.json(rows.map(r => ({ id: r.slot_id, title: 'Available', start: r.start_time })));
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send("Database error");
-//     }
-// });
-
 app.get('/api/available-slots', async (req, res) => {
     try {
         const rows = await pool.query(
@@ -107,7 +128,8 @@ app.get('/api/admin/bookings', adminAuth, async (req, res) => {
         res.status(500).send("Database error");
     }
 });
-// NEW: Toggle No Show status from the dashboard
+
+// Toggle No Show status from the dashboard
 app.post('/api/admin/noshow/:id', adminAuth, async (req, res) => {
     try {
         await pool.query(
