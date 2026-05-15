@@ -1,0 +1,336 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP Booking Portal</title>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+<style>
+    body { 
+        margin: 10px; 
+        background: #f4f4f9; 
+    }
+
+    h2 { 
+        text-align: center; 
+        color: #2c3e50; 
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .timezone-info {
+        text-align: center;
+        font-size: 1rem; /* Adjusted from 2rem to be more balanced */
+        color: #666;
+        margin-bottom: 20px;
+        font-style: italic;
+        font-weight: bold;
+    }
+
+    #calendar { 
+        background: white; 
+        padding: 20px; 
+        border-radius: 12px; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin: 0 auto;
+        max-width: 900px; 
+        width: 95%;
+    }
+
+    /* Slot Count Styling in Header */
+    .hdr-date {
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .hdr-count {
+        font-size: 0.75rem;
+        color: #28a745;
+        font-weight: normal;
+        background: #e8f5e9;
+        border-radius: 4px;
+        padding: 2px 6px;
+        display: inline-block;
+        margin-top: 4px;
+        border: 1px solid #c8e6c9;
+    }
+
+    .hdr-count.hdr-zero {
+    color: #d32f2f; /* Dark Red */
+    background: #ffebee; /* Light Red background */
+    border: 1px solid #ffcdd2;
+    }
+
+    .fc .fc-button {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 1.2rem !important;
+    }
+
+    @media (max-width: 480px) {
+        .fc-timegrid-slot-label {
+            font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 767px) {
+        body { margin: 10px; }
+        #calendar { 
+            width: 100%; 
+            padding: 10px; 
+            border-radius: 0; 
+        }
+    }
+</style>
+</head>
+<body>
+    <h2>🌟 VIP Slot Selection</h2>
+    <div class="timezone-info">
+        📅 All times are displayed in your local timezone.
+    </div>
+    <div id='calendar'></div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    let isMobile = window.innerWidth < 768;
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: isMobile ? 'timeGridDay' : 'timeGridWeek',
+        timeZone: 'local',
+        allDaySlot: false,
+        height: 'auto',
+        
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: isMobile ? '' : 'timeGridWeek,timeGridDay'
+        },
+
+        // Customizing the header to show counts
+        dayHeaderContent: function(arg) {
+            const allEvents = calendar.getEvents();
+            const count = allEvents.filter(event => 
+                event.start.toDateString() === arg.date.toDateString()
+            ).length;
+
+            // Determine if we use the standard green look or the red alert look
+            const countClass = count === 0 ? 'hdr-count hdr-zero' : 'hdr-count';
+            let label = count === 1 ? '1 slot available' : `${count} slots available`;
+            
+            return { 
+                html: `<div class="hdr-date">${arg.text}</div><div class="${countClass}">${label}</div>` 
+            };
+        },
+
+        windowResize: function(arg) {
+            if (window.innerWidth < 768) {
+                calendar.changeView('timeGridDay');
+            } else {
+                calendar.changeView('timeGridWeek');
+            }
+        },
+
+        events: async function(info, successCallback, failureCallback) {
+            try {
+                const res = await fetch('/api/available-slots');
+                const data = await res.json();
+                const formatted = data.map(row => ({
+                    id: row.id, 
+                    title: 'Available', 
+                    start: row.start, 
+                    backgroundColor: '#28a745',
+                    borderColor: '#1e7e34'
+                }));
+                successCallback(formatted);
+                // Trigger a re-render of headers to update the counts
+                calendar.render(); 
+            } catch (err) { failureCallback(err); }
+        },
+
+        eventClick: function(info) {
+            const dateLabel = info.event.start.toLocaleDateString([], { 
+                weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+            });
+            const timeLabel = info.event.start.toLocaleTimeString([], { 
+                hour: '2-digit', minute: '2-digit' 
+            });
+            
+            const userName = prompt(`Booking: ${dateLabel} at ${timeLabel}. \n\nEnter your name to confirm:`);
+            if (userName && userName.trim()) {
+                bookSlot(info.event.id, userName.trim());
+            }
+        }
+    });
+
+    calendar.render();
+});
+
+async function bookSlot(slotId, userName) {
+    try {
+        const response = await fetch('/api/book', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slotId: slotId, userName: userName })
+        });
+
+        if (response.ok) {
+            alert(`Success! Thanks ${userName}, your slot is confirmed.`);
+            location.reload(); 
+        } else {
+            const errorMsg = await response.text();
+            alert("Booking failed: " + errorMsg);
+        }
+    } catch (err) {
+        console.error("Fetch error:", err);
+        alert("Connection error. Is the server running?");
+    }
+}
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborators Booking Portal</title>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+<style>
+    body { margin: 10px; background: #f4f4f9; }
+    h2 { text-align: center; color: #2c3e50; margin-bottom: 5px; font-weight: bold; }
+    .timezone-info { text-align: center; font-size: 1rem; color: #666; margin-bottom: 20px; font-style: italic; font-weight: bold; }
+    
+    #calendar { 
+        background: white; padding: 20px; border-radius: 12px; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 0 auto;
+        max-width: 900px; width: 95%;
+    }
+
+    /* Header Count Styling */
+    .hdr-date { font-weight: bold; color: #2c3e50; }
+    .hdr-count {
+        font-size: 0.75rem; color: #28a745; font-weight: normal;
+        background: #e8f5e9; border-radius: 4px; padding: 2px 6px;
+        display: inline-block; margin-top: 4px; border: 1px solid #c8e6c9;
+    }
+
+    /* Red Alert for 0 Slots */
+    .hdr-count.hdr-zero {
+        color: #d32f2f; background: #ffebee; border: 1px solid #ffcdd2;
+    }
+
+    .fc .fc-button { padding: 8px 12px; font-size: 14px; }
+    .fc .fc-toolbar-title { font-size: 1.2rem !important; }
+
+    @media (max-width: 767px) {
+        body { margin: 10px; }
+        #calendar { width: 100%; padding: 10px; border-radius: 0; }
+    }
+</style>
+</head>
+<body>
+    <h2>🌟 VIP Slot Selection</h2>
+    <div class="timezone-info">📅 All times are displayed in your local timezone.</div>
+    <div id='calendar'></div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    let isMobile = window.innerWidth < 768;
+    
+    // Get today's date in YYYY-MM-DD format for the validRange
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: isMobile ? 'timeGridDay' : 'timeGridWeek',
+        timeZone: 'local',
+        allDaySlot: false,
+        height: 'auto',
+        
+        // CRITICAL: Prevent users from navigating to the past
+        validRange: {
+            start: todayStr
+        },
+
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: isMobile ? '' : 'timeGridWeek,timeGridDay'
+        },
+
+        dayHeaderContent: function(arg) {
+            const allEvents = calendar.getEvents();
+            const count = allEvents.filter(event => 
+                event.start.toDateString() === arg.date.toDateString()
+            ).length;
+
+            // Only show the red "0 slots" if the day is NOT in the past
+            const isPast = arg.date < new Date().setHours(0,0,0,0);
+            
+            if (isPast) {
+                return { html: `<div class="hdr-date">${arg.text}</div>` };
+            }
+
+            const countClass = count === 0 ? 'hdr-count hdr-zero' : 'hdr-count';
+            let label = count === 1 ? '1 slot' : `${count} slots`;
+            
+            return { html: `<div class="hdr-date">${arg.text}</div><div class="${countClass}">${label}</div>` };
+        },
+
+        windowResize: function() {
+            if (window.innerWidth < 768) calendar.changeView('timeGridDay');
+            else calendar.changeView('timeGridWeek');
+        },
+
+        events: async function(info, successCallback, failureCallback) {
+            try {
+                const res = await fetch('/api/available-slots');
+                const data = await res.json();
+                const formatted = data.map(row => ({
+                    id: row.id, title: 'Available', start: row.start, 
+                    backgroundColor: '#28a745', borderColor: '#1e7e34'
+                }));
+                successCallback(formatted);
+                calendar.render(); 
+            } catch (err) { failureCallback(err); }
+        },
+
+        eventClick: function(info) {
+            const dateLabel = info.event.start.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            const timeLabel = info.event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            // Check if user is trying to book something that literally just passed while the page was open
+            if (info.event.start < new Date()) {
+                alert("This slot has already started or passed.");
+                return;
+            }
+
+            const userName = prompt(`Booking: ${dateLabel} at ${timeLabel}. \n\nEnter your name:`);
+            if (userName && userName.trim()) bookSlot(info.event.id, userName.trim());
+        }
+    });
+
+    calendar.render();
+});
+
+async function bookSlot(slotId, userName) {
+    try {
+        const response = await fetch('/api/book', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slotId, userName })
+        });
+        if (response.ok) {
+            alert(`Success! Thanks ${userName}, your slot is confirmed.`);
+            location.reload(); 
+        } else {
+            alert("Booking failed: " + await response.text());
+        }
+    } catch (err) { alert("Connection error."); }
+}
+    </script>
+</body>
+</html>
