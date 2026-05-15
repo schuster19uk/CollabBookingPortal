@@ -11,16 +11,45 @@
             background: #f8f9fa; 
         }
 
-        .header-container {
+        /* NEW: Navigation Bar Container */
+        .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: #2c3e50;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 0 auto 20px auto;
             max-width: 1100px;
-            margin: 0 auto 10px auto;
             width: 95%;
+            box-sizing: border-box;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        h1 { color: #2c3e50; margin: 0; }
+        .navbar-brand { 
+            color: white; 
+            margin: 0; 
+            font-size: 1.3rem;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-view-public {
+            color: #ecf0f1;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .btn-view-public:hover {
+            color: #3498db;
+            text-decoration: underline;
+        }
 
         .btn-logout {
             background-color: #e74c3c;
@@ -33,6 +62,7 @@
             font-weight: bold;
             transition: background 0.2s ease;
         }
+
         .btn-logout:hover {
             background-color: #c0392b;
         }
@@ -70,17 +100,23 @@
 
         @media (max-width: 767px) {
             body { margin: 10px; }
-            .header-container { flex-direction: column; gap: 10px; text-align: center; }
+            .navbar { width: 100%; border-radius: 0; flex-direction: column; gap: 12px; text-align: center; }
+            .navbar-actions { flex-direction: column; gap: 10px; width: 100%; }
+            .btn-logout { width: 100%; }
             #calendar { width: 100%; padding: 10px; border-radius: 0; }
             .legend { gap: 10px; }
         }
     </style>
 </head>
 <body>
-    <div class="header-container">
-        <h1>📋 Management Dashboard</h1>
-        <button id="logoutBtn" class="btn-logout">Logout</button>
-    </div>
+    <!-- UPDATED: Integrated Header with Navigation Layout -->
+    <nav class="navbar">
+        <h1 class="navbar-brand">📋 Management Dashboard</h1>
+        <div class="navbar-actions">
+            <a href="/" class="btn-view-public">👁️ View Public Site</a>
+            <button id="logoutBtn" class="btn-logout">Logout</button>
+        </div>
+    </nav>
     
     <div class="legend">
         <div class="legend-item"><div class="box" style="background: #28a745;"></div> Open Slot</div>
@@ -99,8 +135,7 @@
         // Function to handle unauthorized/expired session states safely
         function handleAuthError() {
             alert("Your session has expired. Please log in again.");
-            // Redirect down to a login page if you have one, or force reload
-            window.location.href = '/'; 
+            window.location.href = '/login'; 
         }
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -114,7 +149,7 @@
                 right: isMobile ? '' : 'timeGridWeek,timeGridDay'
             },
 
-            // 1. Show Booked counts in headers
+            // Show Booked counts in headers
             dayHeaderContent: function(arg) {
                 const allEvents = calendar.getEvents();
                 
@@ -195,7 +230,6 @@
                         }
 
                         if (res.ok) {
-                            // Refetch events so the color changes to Red immediately
                             calendar.refetchEvents();
                         } else {
                             alert("Failed to update status.");
@@ -215,7 +249,7 @@
                 try {
                     const res = await fetch('/api/admin/logout', { method: 'POST' });
                     if (res.ok) {
-                        window.location.href = '/'; // Send back to home or a login page
+                        window.location.href = '/'; 
                     } else {
                         alert("Logout failed execution on server.");
                     }
