@@ -60,12 +60,12 @@ app.post('/api/admin/logout', (req, res) => {
 app.get('/api/available-slots', async (req, res) => {
     try {
         const rows = await pool.query(
-            "SELECT slot_id, start_time FROM booking_slots WHERE is_available = TRUE AND is_special_slot = TRUE AND start_time >= NOW()"
+            "SELECT slot_id, start_time , slot_category FROM booking_slots WHERE is_available = TRUE AND is_special_slot = TRUE AND start_time >= NOW()"
         );
-        
+
         const formatted = rows.map(r => ({
             id: r.slot_id,
-            title: 'Available',
+            title: 'Available' + (r.slot_category ? ` - ${r.slot_category}` : ''), // Append category to title if it exists
             // MUST MATCH: replace space with T and add Z
             start: r.start_time.replace(" ", "T") + "Z" 
         }));
@@ -98,12 +98,42 @@ app.post('/api/book', async (req, res) => {
 // --- MANAGEMENT PRIVATE API ---
 
 // Get all bookings
+// app.get('/api/admin/bookings', adminAuth, async (req, res) => {
+//     try {
+//         const rows = await pool.query("SELECT * FROM booking_slots ORDER BY start_time ASC");
+        
+//         const formattedData = rows.map(row => {
+//             // Determine the status for the title
+//             let title = 'Available';
+//             if (row.is_no_show) {
+//                 title = `🚩 ${row.booked_by_name || 'No Show'}`;
+//             } else if (!row.is_available) {
+//                 title = row.booked_by_name || 'Booked';
+//             }
+
+//             return {
+//                 id: row.slot_id,
+//                 title: title,
+//                 // Ensure the date is ISO-8601 with Zulu (UTC) flag
+//                 start: row.start_time.replace(" ", "T") + "Z",
+//                 // Pass these as extra flags so the frontend can still use them for logic
+//                 is_available: row.is_available,
+//                 is_no_show: row.is_no_show
+//             };
+//         });
+
+//         res.json(formattedData);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send("Database error");
+//     }
+// });
+
 app.get('/api/admin/bookings', adminAuth, async (req, res) => {
     try {
         const rows = await pool.query("SELECT * FROM booking_slots ORDER BY start_time ASC");
         
         const formattedData = rows.map(row => {
-            // Determine the status for the title
             let title = 'Available';
             if (row.is_no_show) {
                 title = `🚩 ${row.booked_by_name || 'No Show'}`;
@@ -113,12 +143,11 @@ app.get('/api/admin/bookings', adminAuth, async (req, res) => {
 
             return {
                 id: row.slot_id,
-                title: title,
-                // Ensure the date is ISO-8601 with Zulu (UTC) flag
-                start: row.start_time.replace(" ", "T") + "Z",
-                // Pass these as extra flags so the frontend can still use them for logic
+                title: title , // Append category to title if it exists
+                start: row.start_time.replace(" ", "T") + "Z" ,
                 is_available: row.is_available,
-                is_no_show: row.is_no_show
+                is_no_show: row.is_no_show,
+                slot_category: row.slot_category
             };
         });
 
@@ -128,6 +157,7 @@ app.get('/api/admin/bookings', adminAuth, async (req, res) => {
         res.status(500).send("Database error");
     }
 });
+
 
 // Toggle No Show status from the dashboard
 app.post('/api/admin/noshow/:id', adminAuth, async (req, res) => {

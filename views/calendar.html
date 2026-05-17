@@ -75,8 +75,9 @@
         <a href="/manage">Dashboard Admin</a>
     </div>
     </nav>
-    <h2>🔍 Slot Selection</h2>
+    <h2>🔍 Slot Selection </h2>
     <div class="timezone-info">🕒 All times are displayed in your local timezone.</div>
+    <div class="timezone-info">Please book collaborator slots, only book staff slots if you are staff.</div>
     <div id='calendar'></div>
 
     <script>
@@ -132,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const res = await fetch('/api/available-slots');
                 const data = await res.json();
                 const formatted = data.map(row => ({
-                    id: row.id, title: 'Available', start: row.start, 
+                    id: row.id, title: row.title, start: row.start, 
                     backgroundColor: '#28a745', borderColor: '#1e7e34'
                 }));
                 successCallback(formatted);

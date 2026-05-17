@@ -188,7 +188,7 @@
                     
                     const formatted = data.map(row => ({
                         id: row.id,
-                        title: row.title + ' ' + row.slot_category, // Append category to title if it exists
+                        title: row.title,
                         start: row.start,
                         backgroundColor: row.title.includes('🚩') ? '#e74c3c' : 
                                          (row.title === 'Available' ? '#28a745' : '#3788d8'),
