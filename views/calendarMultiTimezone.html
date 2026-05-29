@@ -1,0 +1,401 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborators Booking Portal</title>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+<style>
+    body { margin: 10px; background: #f4f4f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    h2 { text-align: center; color: #2c3e50; margin-bottom: 5px; font-weight: bold; }
+    .timezone-info { text-align: center; font-size: 1rem; color: #666; margin-bottom: 20px; font-style: italic; font-weight: bold; }
+
+    /* Timezone Selector Wrapper */
+    .timezone-selector-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .timezone-select {
+        padding: 8px 12px;
+        font-size: 0.95rem;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        background-color: white;
+        color: #2c3e50;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #2c3e50;
+        padding: 10px 20px;
+        border-radius: 8px;
+        margin: 0 auto 20px auto;
+        max-width: 1100px;
+        width: 95%;
+        box-sizing: border-box;
+    }
+    .navbar-brand {
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        text-decoration: none;
+    }
+    .navbar-links a {
+        color: #ecf0f1;
+        text-decoration: none;
+        font-size: 0.95rem;
+        padding: 6px 12px;
+        border-radius: 4px;
+        transition: background 0.2s;
+    }
+    .navbar-links a:hover {
+        background: #34495e;
+    }
+    
+    #calendar { 
+        background: white; padding: 20px; border-radius: 12px; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 0 auto;
+        max-width: 900px; width: 95%;
+    }
+
+    /* Header Count Styling */
+    .hdr-date { font-weight: bold; color: #2c3e50; }
+    .hdr-count {
+        font-size: 0.75rem; color: #28a745; font-weight: normal;
+        background: #e8f5e9; border-radius: 4px; padding: 2px 6px;
+        display: inline-block; margin-top: 4px; border: 1px solid #c8e6c9;
+    }
+
+    /* Red Alert for 0 Slots */
+    .hdr-count.hdr-zero {
+        color: #d32f2f; background: #ffebee; border: 1px solid #ffcdd2;
+    }
+
+    .fc .fc-button { padding: 8px 12px; font-size: 14px; }
+    .fc .fc-toolbar-title { font-size: 1.2rem !important; }
+
+    /* OPERATIONAL ACTIONS MODAL STYLES */
+    dialog {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        padding: 24px;
+        width: 90%;
+        max-width: 420px;
+        box-sizing: border-box;
+    }
+    dialog::backdrop {
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(3px);
+    }
+    .modal-header {
+        margin-top: 0;
+        color: #2c3e50;
+        font-size: 1.3rem;
+        border-bottom: 2px solid #ecf0f1;
+        padding-bottom: 10px;
+    }
+    .modal-body {
+        margin: 15px 0 25px 0;
+        font-size: 1rem;
+        color: #555;
+        line-height: 1.4;
+    }
+    .modal-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .modal-btn {
+        padding: 12px;
+        font-size: 0.95rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s;
+        text-align: center;
+    }
+    .btn-modal-noshow { background: #f39c12; color: white; }
+    .btn-modal-noshow:hover { background: #d35400; }
+    .btn-modal-cancel { background: #e74c3c; color: white; }
+    .btn-modal-cancel:hover { background: #c0392b; }
+    .btn-modal-close { background: #bdc3c7; color: #333; margin-top: 5px; }
+    .btn-modal-close:hover { background: #95a5a6; }
+
+    @media (max-width: 767px) {
+        body { margin: 10px; }
+        #calendar { width: 100%; padding: 10px; border-radius: 0; }
+        .navbar { width: 100%; border-radius: 0; margin-bottom: 10px; }
+    }
+</style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">🚀 Collaborators Booking Portal</a>
+        <div class="navbar-links">
+            <a href="/manage">Dashboard Admin</a>
+        </div>
+    </nav>
+    <h2>🔍 Slot Selection </h2>
+    <div class="timezone-info">Please book collaborator slots, only book staff slots if you are staff.</div>
+    
+    <div class="timezone-selector-container">
+        <label for="tz-selector" style="color: #2c3e50; font-weight: bold; margin-right: 8px;">Viewing in Timezone:</label>
+        <select id="tz-selector" class="timezone-select">
+            <optgroup label="Your System">
+                <option value="local">Your Local Time</option>
+                <option value="UTC">UTC / GMT</option>
+            </optgroup>
+            
+            <optgroup label="North America">
+                <option value="America/New_York">Eastern Time (ET)</option>
+                <option value="America/Chicago">Central Time (CT)</option>
+                <option value="America/Denver">Mountain Time (MT)</option>
+                <option value="America/Phoenix">Arizona (MST, no DST)</option>
+                <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                <option value="America/Anchorage">Alaska Time (AKT)</option>
+                <option value="Pacific/Honolulu">Hawaii Time (HST)</option>
+            </optgroup>
+
+            <optgroup label="Europe">
+                <option value="Europe/London">London / Dublin (GMT/BST)</option>
+                <option value="Europe/Paris">Paris / Berlin / Rome (CET/CEST)</option>
+                <option value="Europe/Athens">Athens / Cairo / Istanbul (EET)</option>
+            </optgroup>
+
+            <optgroup label="Asia & Middle East">
+                <option value="Asia/Dubai">Dubai / Gulf (GST)</option>
+                <option value="Asia/Kolkata">India (IST)</option>
+                <option value="Asia/Bangkok">Bangkok / Jakarta (ICT)</option>
+                <option value="Asia/Singapore">Singapore / Hong Kong (SGT)</option>
+                <option value="Asia/Tokyo">Tokyo / Seoul (JST)</option>
+            </optgroup>
+
+            <optgroup label="Australia & Pacific">
+                <option value="Australia/Perth">Perth (AWST)</option>
+                <option value="Australia/Adelaide">Adelaide (ACST)</option>
+                <option value="Australia/Sydney">Sydney / Melbourne (AEST)</option>
+                <option value="Pacific/Auckland">Auckland / Fiji (NZST)</option>
+            </optgroup>
+        </select>
+    </div>
+
+    <div id='calendar'></div>
+
+    <dialog id="bookingModal">
+        <h3 id="modalTitle" class="modal-header">Manage Booking</h3>
+        <div class="modal-body">
+            Select an action to execute instantly for this slot:
+        </div>
+        <div class="modal-actions">
+            <button id="modalNoShowBtn" class="modal-btn btn-modal-noshow">Mark as No Show</button>
+            <button id="modalCancelBtn" class="modal-btn btn-modal-cancel">Cancel & Clear Booking</button>
+            <button id="modalCloseBtn" class="modal-btn btn-modal-close">Close</button>
+        </div>
+    </dialog>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    const tzSelectorEl = document.getElementById('tz-selector');
+    
+    // Modal Elements
+    const modal = document.getElementById('bookingModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalNoShowBtn = document.getElementById('modalNoShowBtn');
+    const modalCancelBtn = document.getElementById('modalCancelBtn');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    
+    let selectedEvent = null;
+    let isMobile = window.innerWidth < 768;
+    let rawFetchedSlots = [];
+
+    function handleAuthError() {
+        alert("Your session has expired. Please log in again.");
+        window.location.href = '/multi-login'; 
+    }
+
+    function getTimezoneOffset(timeZone, date) {
+        if (timeZone === 'local') {
+            return -date.getTimezoneOffset();
+        }
+        const tz = timeZone === 'UTC' ? 'GMT' : timeZone;
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: tz,
+            year: 'numeric', month: 'numeric', day: 'numeric',
+            hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false
+        });
+        const parts = formatter.formatToParts(date);
+        const map = Object.fromEntries(parts.map(p => [p.type, p.value]));
+        const targetTargetUTC = Date.UTC(
+            map.year, map.month - 1, map.day, 
+            map.hour === '24' ? 0 : map.hour, map.minute, map.second
+        );
+        return Math.round((targetTargetUTC - date.getTime()) / 60000);
+    }
+
+    function shiftToZone(dateInput, targetZone) {
+        const baseDate = new Date(dateInput);
+        const targetOffset = getTimezoneOffset(targetZone, baseDate);
+        return new Date(baseDate.getTime() + (targetOffset * 60000));
+    }
+
+    function getFormatDateString(date) {
+        return date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0') + '-' + String(date.getUTCDate()).padStart(2, '0');
+    }
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: isMobile ? 'timeGridDay' : 'timeGridWeek',
+        timeZone: 'UTC',
+        allDaySlot: false,
+        height: 'auto',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: isMobile ? '' : 'timeGridWeek,timeGridDay'
+        },
+
+        dayHeaderContent: function(arg) {
+            const selectedZone = tzSelectorEl.value;
+            const targetDayStr = getFormatDateString(arg.date);
+            
+            const count = rawFetchedSlots.filter(slot => {
+                const shiftedDate = shiftToZone(slot.start, selectedZone);
+                return getFormatDateString(shiftedDate) === targetDayStr && slot.is_available && !slot.is_no_show;
+            }).length;
+
+            const countClass = count === 0 ? 'hdr-count hdr-zero' : 'hdr-count';
+            let label = count === 1 ? '1 slot' : `${count} slots`;
+            
+            return { html: `<div class="hdr-date">${arg.text}</div><div class="${countClass}">${label}</div>` };
+        },
+
+        windowResize: function() {
+            if (window.innerWidth < 768) calendar.changeView('timeGridDay');
+            else calendar.changeView('timeGridWeek');
+        },
+
+        events: async function(info, successCallback, failureCallback) {
+            try {
+                // Fetch ALL bookings from the multi-admin route
+                const res = await fetch('/api/multi-admin/bookings');
+                if (res.status === 401) { handleAuthError(); return; }
+
+                const data = await res.json();
+                rawFetchedSlots = data; 
+                const selectedZone = tzSelectorEl.value;
+
+                const formatted = data.map(row => {
+                    const shiftedDate = shiftToZone(row.start, selectedZone);
+                    return {
+                        id: row.id, 
+                        title: row.title + (row.slot_category ? ` [${row.slot_category}]` : ''), 
+                        start: shiftedDate.toISOString().replace("Z", ""), 
+                        backgroundColor: row.title.includes('🚩') ? '#e74c3c' : 
+                                         (row.title === 'Available' ? '#28a745' : '#3788d8'),
+                        allDay: false,
+                        extendedProps: { 
+                            available: row.is_available,
+                            noShow: row.is_no_show 
+                        }
+                    };
+                });
+                successCallback(formatted);
+            } catch (err) { failureCallback(err); }
+        },
+
+        eventClick: function(info) {
+            const props = info.event.extendedProps;
+            selectedEvent = info.event;
+
+            // If an available block is accidentally touched, open the standard user flow instead
+            if (props.available) {
+                const selectedZone = tzSelectorEl.value === 'local' ? Intl.DateTimeFormat().resolvedOptions().timeZone : tzSelectorEl.value;
+                const matchedRawEvent = rawFetchedSlots.find(s => String(s.id) === String(info.event.id));
+                const baseTime = matchedRawEvent ? new Date(matchedRawEvent.start) : info.event.start;
+
+                if (baseTime < new Date()) {
+                    alert("This slot has already started or passed.");
+                    return;
+                }
+
+                const userName = prompt(`Booking selection window.\n\nEnter your name to claim:`);
+                if (userName && userName.trim()) {
+                    bookSlot(info.event.id, userName.trim());
+                }
+                return;
+            }
+
+            // Administrative Trigger Interface: Open Modal directly
+            modalNoShowBtn.style.display = props.noShow ? 'none' : 'block';
+            modalTitle.innerText = `Manage Slot: ${selectedEvent.title}`;
+            modal.showModal();
+        }
+    });
+
+    tzSelectorEl.addEventListener('change', function() {
+        calendar.refetchEvents();
+    });
+
+    // Public booking utility handler
+    async function bookSlot(slotId, userName) {
+        try {
+            const response = await fetch('/api/book', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ slotId, userName })
+            });
+            if (response.ok) {
+                calendar.refetchEvents(); 
+            } else {
+                alert("Booking failed: " + await response.text());
+            }
+        } catch (err) { alert("Connection error."); }
+    }
+
+    // --- INSTANT ACTION MODAL INTERACTION HANDLERS ---
+
+    modalNoShowBtn.addEventListener('click', async () => {
+        if (!selectedEvent) return;
+        try {
+            const res = await fetch(`/api/multi-admin/noshow/${selectedEvent.id}`, { method: 'POST' });
+            if (res.status === 401) { handleAuthError(); return; }
+
+            if (res.ok) {
+                modal.close();
+                calendar.refetchEvents();
+            } else {
+                alert("Failed to mark as No Show.");
+            }
+        } catch (err) { alert("Error connecting to server."); }
+    });
+
+    modalCancelBtn.addEventListener('click', async () => {
+        if (!selectedEvent) return;
+        try {
+            const res = await fetch(`/api/multi-admin/cancel/${selectedEvent.id}`, { method: 'POST' });
+            if (res.status === 401) { handleAuthError(); return; }
+
+            if (res.ok) {
+                modal.close();
+                calendar.refetchEvents();
+            } else {
+                alert("Failed to cancel booking.");
+            }
+        } catch (err) { alert("Error connecting to server."); }
+    });
+
+    modalCloseBtn.addEventListener('click', () => {
+        modal.close();
+    });
+
+    calendar.render();
+});
+</script>
+</body>
+</html>

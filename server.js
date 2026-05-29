@@ -20,7 +20,8 @@ app.use(session({
 }));
 
 // --- AUTH MIDDLEWARE ---
-// Protects management routes by checking the active session state
+
+// Protects standard management routes
 const adminAuth = (req, res, next) => {
     if (req.session && req.session.isAdmin) {
         return next();
@@ -28,9 +29,18 @@ const adminAuth = (req, res, next) => {
     res.status(401).json({ error: 'Authentication required. Session expired.' });
 };
 
+// NEW: Protects multi-timezone management routes
+const multiAdminAuth = (req, res, next) => {
+    if (req.session && req.session.isMultiAdmin) {
+        return next();
+    }
+    res.status(401).json({ error: 'Authentication required. Session expired.' });
+};
+
+
 // --- AUTHENTICATION API ENDPOINTS ---
 
-// Login endpoint
+// Standard Login endpoint
 app.post('/api/admin/login', (req, res) => {
     const { username, password } = req.body;
     
@@ -42,7 +52,19 @@ app.post('/api/admin/login', (req, res) => {
     res.status(401).json({ error: 'Invalid credentials' });
 });
 
-// Explicit Logout endpoint
+// NEW: Multi-timezone Login endpoint
+app.post('/api/multi-admin/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    if (username === process.env.MULTI_ADMIN_USERNAME && password === process.env.MULTI_ADMIN_PASSWORD) {
+        req.session.isMultiAdmin = true; // Store multi-admin authenticated status inside the session
+        return res.json({ success: true, message: 'Logged in successfully' });
+    }
+    
+    res.status(401).json({ error: 'Invalid credentials' });
+});
+
+// Explicit Logout endpoint (Clears both session flags)
 app.post('/api/admin/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
@@ -65,7 +87,7 @@ app.get('/api/available-slots', async (req, res) => {
 
         const formatted = rows.map(r => ({
             id: r.slot_id,
-            title: 'Available' + (r.slot_category ? ` - ${r.slot_category}` : ''), // Append category to title if it exists
+            title: 'Available' + (r.slot_category ? ` - ${r.slot_category}` : ''), 
             // MUST MATCH: replace space with T and add Z
             start: r.start_time.replace(" ", "T") + "Z" 
         }));
@@ -87,7 +109,6 @@ app.post('/api/book', async (req, res) => {
             [userName, slotId]
         );
         
-        // MariaDB returns 'affectedRows' on the result object
         result.affectedRows > 0 ? res.sendStatus(200) : res.status(400).send("Slot already taken");
     } catch (err) {
         console.error(err);
@@ -97,38 +118,7 @@ app.post('/api/book', async (req, res) => {
 
 // --- MANAGEMENT PRIVATE API ---
 
-// Get all bookings
-// app.get('/api/admin/bookings', adminAuth, async (req, res) => {
-//     try {
-//         const rows = await pool.query("SELECT * FROM booking_slots ORDER BY start_time ASC");
-        
-//         const formattedData = rows.map(row => {
-//             // Determine the status for the title
-//             let title = 'Available';
-//             if (row.is_no_show) {
-//                 title = `🚩 ${row.booked_by_name || 'No Show'}`;
-//             } else if (!row.is_available) {
-//                 title = row.booked_by_name || 'Booked';
-//             }
-
-//             return {
-//                 id: row.slot_id,
-//                 title: title,
-//                 // Ensure the date is ISO-8601 with Zulu (UTC) flag
-//                 start: row.start_time.replace(" ", "T") + "Z",
-//                 // Pass these as extra flags so the frontend can still use them for logic
-//                 is_available: row.is_available,
-//                 is_no_show: row.is_no_show
-//             };
-//         });
-
-//         res.json(formattedData);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send("Database error");
-//     }
-// });
-
+// Standard Admin Bookings
 app.get('/api/admin/bookings', adminAuth, async (req, res) => {
     try {
         const rows = await pool.query("SELECT * FROM booking_slots ORDER BY start_time ASC");
@@ -143,7 +133,7 @@ app.get('/api/admin/bookings', adminAuth, async (req, res) => {
 
             return {
                 id: row.slot_id,
-                title: title , // Append category to title if it exists
+                title: title , 
                 start: row.start_time.replace(" ", "T") + "Z" ,
                 is_available: row.is_available,
                 is_no_show: row.is_no_show,
@@ -158,8 +148,92 @@ app.get('/api/admin/bookings', adminAuth, async (req, res) => {
     }
 });
 
+// NEW: Multi-Admin Bookings API Endpoint (uses multiAdminAuth)
+app.get('/api/multi-admin/bookings', multiAdminAuth, async (req, res) => {
+    try {
+        const rows = await pool.query("SELECT * FROM booking_slots ORDER BY start_time ASC");
+        
+        const formattedData = rows.map(row => {
+            let title = 'Available';
+            if (row.is_no_show) {
+                title = `🚩 ${row.booked_by_name || 'No Show'}`;
+            } else if (!row.is_available) {
+                title = row.booked_by_name || 'Booked';
+            }
 
-// Toggle No Show status from the dashboard
+            return {
+                id: row.slot_id,
+                title: title , 
+                start: row.start_time.replace(" ", "T") + "Z" ,
+                is_available: row.is_available,
+                is_no_show: row.is_no_show,
+                slot_category: row.slot_category
+            };
+        });
+
+        res.json(formattedData);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Database error");
+    }
+});
+
+// // Toggle No Show status from the standard dashboard
+// app.post('/api/admin/noshow/:id', adminAuth, async (req, res) => {
+//     try {
+//         await pool.query(
+//             "UPDATE booking_slots SET is_no_show = TRUE WHERE slot_id = ?",
+//             [req.params.id]
+//         );
+//         res.sendStatus(200);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send("Failed to update status");
+//     }
+// });
+
+// // NEW: Toggle No Show status from the multi dashboard
+// app.post('/api/multi-admin/noshow/:id', multiAdminAuth, async (req, res) => {
+//     try {
+//         await pool.query(
+//             "UPDATE booking_slots SET is_no_show = TRUE WHERE slot_id = ?",
+//             [req.params.id]
+//         );
+//         res.sendStatus(200);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send("Failed to update status");
+//     }
+// });
+
+
+// --- SERVE PAGES ---
+
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'views/calendar.html')));
+
+// Standard Login Page
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'views/login.html')));
+
+// NEW: Multi Login Page
+app.get('/multi-login', (req, res) => res.sendFile(path.join(__dirname, 'views/multi-login.html')));
+
+// Protected Standard Management Page
+app.get('/manage', (req, res) => {
+    if (req.session && req.session.isAdmin) {
+        return res.sendFile(path.join(__dirname, 'views/management.html'));
+    }
+    res.redirect('/login');
+});
+
+// NEW: Protected Multi-Management Page
+app.get('/multi', (req, res) => {
+    if (req.session && req.session.isMultiAdmin) {
+        return res.sendFile(path.join(__dirname, 'views/calendarMultiTimezone.html')); // Or wherever your multi dashboard HTML sits
+    }
+    res.redirect('/multi-login');
+});
+
+// Toggle No Show status from the standard dashboard
 app.post('/api/admin/noshow/:id', adminAuth, async (req, res) => {
     try {
         await pool.query(
@@ -173,23 +247,51 @@ app.post('/api/admin/noshow/:id', adminAuth, async (req, res) => {
     }
 });
 
-// --- SERVE PAGES ---
-
-
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'views/calendar.html')));
-
-// NEW: Login Page
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'views/login.html')));
-
-// Protected Management Page
-app.get('/manage', (req, res) => {
-    // Elegant redirect inline if session doesn't exist
-    if (req.session && req.session.isAdmin) {
-        return res.sendFile(path.join(__dirname, 'views/management.html'));
+// NEW: Cancel and Reset booking slot from standard dashboard
+app.post('/api/admin/cancel/:id', adminAuth, async (req, res) => {
+    try {
+        await pool.query(
+            `UPDATE booking_slots 
+             SET booked_by_id = NULL, booked_by_name = NULL, is_available = TRUE, is_no_show = FALSE 
+             WHERE slot_id = ?`,
+            [req.params.id]
+        );
+        res.sendStatus(200);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Failed to cancel booking");
     }
-    res.redirect('/login');
 });
 
+// NEW: Toggle No Show status from the multi dashboard
+app.post('/api/multi-admin/noshow/:id', multiAdminAuth, async (req, res) => {
+    try {
+        await pool.query(
+            "UPDATE booking_slots SET is_no_show = TRUE WHERE slot_id = ?",
+            [req.params.id]
+        );
+        res.sendStatus(200);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Failed to update status");
+    }
+});
+
+// NEW: Cancel and Reset booking slot from multi dashboard
+app.post('/api/multi-admin/cancel/:id', multiAdminAuth, async (req, res) => {
+    try {
+        await pool.query(
+            `UPDATE booking_slots 
+             SET booked_by_id = NULL, booked_by_name = NULL, is_available = TRUE, is_no_show = FALSE 
+             WHERE slot_id = ?`,
+            [req.params.id]
+        );
+        res.sendStatus(200);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Failed to cancel booking");
+    }
+});
 
 // Start Server
 const PORT = process.env.PORT || 3000;

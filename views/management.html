@@ -11,7 +11,6 @@
             background: #f8f9fa; 
         }
 
-        /* NEW: Navigation Bar Container */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -83,20 +82,66 @@
             border-radius: 12px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin: 0 auto;
-            /* Desktop consistency */
             max-width: 1100px; 
             width: 95%;
         }
 
-        /* Header Count Styling */
         .hdr-date { font-weight: bold; color: #2c3e50; }
         .hdr-count {
             font-size: 0.75rem; color: #3788d8; font-weight: normal;
             background: #eef2ff; border-radius: 4px; padding: 2px 6px;
             display: inline-block; margin-top: 4px; border: 1px solid #d1d5db;
         }
-        /* Red alert for days with NO bookings yet */
         .hdr-count.hdr-zero { color: #666; background: #f3f4f6; border-color: #e5e7eb; }
+
+        /* MODAL DIALOG STYLES */
+        dialog {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 24px;
+            width: 90%;
+            max-width: 450px;
+            box-sizing: border-box;
+        }
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+        }
+        .modal-header {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        .modal-body {
+            margin: 15px 0 25px 0;
+            font-size: 1rem;
+            color: #555;
+            line-height: 1.5;
+        }
+        .modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .modal-btn {
+            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+        }
+        .btn-modal-noshow { background: #f39c12; color: white; }
+        .btn-modal-noshow:hover { background: #d35400; }
+        .btn-modal-cancel { background: #e74c3c; color: white; }
+        .btn-modal-cancel:hover { background: #c0392b; }
+        .btn-modal-close { background: #bdc3c7; color: #333; margin-top: 5px; }
+        .btn-modal-close:hover { background: #95a5a6; }
 
         @media (max-width: 767px) {
             body { margin: 10px; }
@@ -109,7 +154,6 @@
     </style>
 </head>
 <body>
-    <!-- UPDATED: Integrated Header with Navigation Layout -->
     <nav class="navbar">
         <h1 class="navbar-brand">📋 Management Dashboard</h1>
         <div class="navbar-actions">
@@ -126,13 +170,33 @@
 
     <div id='calendar'></div>
 
+    <dialog id="bookingModal">
+        <h3 id="modalTitle" class="modal-header">Manage Booking</h3>
+        <div class="modal-body">
+            Select an action to perform on this slot:
+        </div>
+        <div class="modal-actions">
+            <button id="modalNoShowBtn" class="modal-btn btn-modal-noshow">Mark as No Show</button>
+            <button id="modalCancelBtn" class="modal-btn btn-modal-cancel">Cancel & Reset Booking</button>
+            <button id="modalCloseBtn" class="modal-btn btn-modal-close">Close</button>
+        </div>
+    </dialog>
+
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         const calendarEl = document.getElementById('calendar');
         const logoutBtn = document.getElementById('logoutBtn');
+        
+        // Modal elements
+        const modal = document.getElementById('bookingModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalNoShowBtn = document.getElementById('modalNoShowBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+        
+        let selectedEvent = null; 
         let isMobile = window.innerWidth < 768;
 
-        // Function to handle unauthorized/expired session states safely
         function handleAuthError() {
             alert("Your session has expired. Please log in again.");
             window.location.href = '/login'; 
@@ -149,16 +213,12 @@
                 right: isMobile ? '' : 'timeGridWeek,timeGridDay'
             },
 
-            // Show Booked counts in headers
             dayHeaderContent: function(arg) {
                 const allEvents = calendar.getEvents();
-                
-                // Filter for slots that are NOT available AND NOT marked as no-show
                 const activeBookings = allEvents.filter(event => {
                     const isSameDay = event.start.toDateString() === arg.date.toDateString();
                     const isBooked = !event.extendedProps.available;
                     const isNotNoShow = !event.extendedProps.noShow;
-                    
                     return isSameDay && isBooked && isNotNoShow;
                 }).length;
 
@@ -178,17 +238,12 @@
             events: async function(info, successCallback, failureCallback) {
                 try {
                     const res = await fetch('/api/admin/bookings');
-                    
-                    if (res.status === 401) {
-                        handleAuthError();
-                        return;
-                    }
+                    if (res.status === 401) { handleAuthError(); return; }
 
                     const data = await res.json();
-                    
                     const formatted = data.map(row => ({
                         id: row.id,
-                        title: row.title + ' ' + row.slot_category, // Append category to title if it exists
+                        title: row.title + ' ' + row.slot_category, 
                         start: row.start,
                         backgroundColor: row.title.includes('🚩') ? '#e74c3c' : 
                                          (row.title === 'Available' ? '#28a745' : '#3788d8'),
@@ -207,7 +262,7 @@
                 }
             },
 
-            eventClick: async function(info) {
+            eventClick: function(info) {
                 const props = info.event.extendedProps;
 
                 if (props.available) {
@@ -215,33 +270,59 @@
                     return;
                 }
 
-                if (props.noShow) {
-                    alert("Already marked as No Show.");
-                    return;
-                }
-
-                if (confirm(`Mark "${info.event.title}" as a No Show?`)) {
-                    try {
-                        const res = await fetch(`/api/admin/noshow/${info.event.id}`, { method: 'POST' });
-                        
-                        if (res.status === 401) {
-                            handleAuthError();
-                            return;
-                        }
-
-                        if (res.ok) {
-                            calendar.refetchEvents();
-                        } else {
-                            alert("Failed to update status.");
-                        }
-                    } catch (err) {
-                        alert("Error connecting to server.");
-                    }
-                }
+                selectedEvent = info.event;
+                
+                // If it's already a No Show, hide that button option
+                modalNoShowBtn.style.display = props.noShow ? 'none' : 'block';
+                modalTitle.innerText = `Manage: ${selectedEvent.title}`;
+                
+                modal.showModal();
             }
         });
 
         calendar.render();
+
+        // --- INSTANT MODAL ACTION HANDLERS ---
+
+        modalNoShowBtn.addEventListener('click', async () => {
+            if (!selectedEvent) return;
+            
+            try {
+                const res = await fetch(`/api/admin/noshow/${selectedEvent.id}`, { method: 'POST' });
+                if (res.status === 401) { handleAuthError(); return; }
+
+                if (res.ok) {
+                    modal.close();
+                    calendar.refetchEvents();
+                } else {
+                    alert("Failed to update status.");
+                }
+            } catch (err) {
+                alert("Error connecting to server.");
+            }
+        });
+
+        modalCancelBtn.addEventListener('click', async () => {
+            if (!selectedEvent) return;
+
+            try {
+                const res = await fetch(`/api/admin/cancel/${selectedEvent.id}`, { method: 'POST' });
+                if (res.status === 401) { handleAuthError(); return; }
+
+                if (res.ok) {
+                    modal.close();
+                    calendar.refetchEvents();
+                } else {
+                    alert("Failed to cancel booking.");
+                }
+            } catch (err) {
+                alert("Error connecting to server.");
+            }
+        });
+
+        modalCloseBtn.addEventListener('click', () => {
+            modal.close();
+        });
 
         // --- LOGOUT BUTTON EVENT LISTENER ---
         logoutBtn.addEventListener('click', async () => {
