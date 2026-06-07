@@ -1,0 +1,198 @@
+/*
+ * calendar.css — Public Booking Calendar & Multi-Timezone Calendar
+ * Collaborators Booking Portal
+ *
+ * Depends on: theme.css
+ * Works for: calendar.html, calendarMultiTimezone.html
+ */
+
+/* ── Page wrapper ── */
+.calendar-page {
+    padding: var(--space-5) var(--space-4) var(--space-10);
+}
+
+/* ── Page heading ── */
+.calendar-heading {
+    text-align: center;
+    font-family: var(--font-sans);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: var(--space-2);
+}
+
+.calendar-hint {
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+    font-style: italic;
+}
+
+.calendar-notice {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-5);
+}
+
+/* ── Timezone selector (calendarMultiTimezone) ── */
+.timezone-selector-container {
+    text-align: center;
+    margin-bottom: var(--space-5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.timezone-selector-container label {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.timezone-select {
+    padding: 8px var(--space-4);
+    font-size: 0.88rem;
+    font-family: var(--font-mono);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+    font-weight: 500;
+    transition: border-color var(--transition);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 32px;
+}
+.timezone-select:focus { border-color: var(--accent); box-shadow: var(--shadow-glow); }
+.timezone-select option, .timezone-select optgroup { background: var(--surface-2); color: var(--text); }
+
+/* ── FullCalendar container ── */
+#calendar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: var(--space-5);
+    margin: 0 auto;
+    max-width: 920px;
+    width: 95%;
+}
+
+/* ── FullCalendar overrides ── */
+.fc {
+    color: var(--text);
+    font-family: var(--font-sans);
+}
+
+/* Toolbar */
+.fc .fc-toolbar { margin-bottom: var(--space-4); }
+.fc .fc-toolbar-title {
+    font-size: 1.1rem !important;
+    font-weight: 600;
+    color: var(--text);
+    font-family: var(--font-mono);
+}
+
+/* Buttons */
+.fc .fc-button {
+    background: var(--surface-2) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-secondary) !important;
+    font-family: var(--font-mono);
+    font-size: 0.78rem !important;
+    font-weight: 500;
+    padding: 6px var(--space-3) !important;
+    border-radius: var(--radius-sm) !important;
+    transition: background var(--transition), color var(--transition) !important;
+    box-shadow: none !important;
+    text-transform: none !important;
+}
+.fc .fc-button:hover {
+    background: var(--surface-3) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
+}
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #fff !important;
+}
+
+/* Grid lines */
+.fc .fc-timegrid-slot { border-color: var(--border-subtle) !important; }
+.fc .fc-col-header-cell { border-color: var(--border) !important; }
+.fc .fc-daygrid-day, .fc .fc-timegrid-col { border-color: var(--border-subtle) !important; }
+.fc .fc-scrollgrid { border-color: var(--border) !important; }
+.fc td, .fc th { border-color: var(--border-subtle) !important; }
+
+/* Force FullCalendar header cells to use the theme surface background */
+.fc th.fc-col-header-cell,
+.fc th.fc-timegrid-axis {
+    background-color: var(--surface) !important;
+}
+
+/* Today highlight */
+.fc .fc-day-today { background: var(--fc-today-bg) !important; }
+
+/* Time labels */
+.fc .fc-timegrid-slot-label { color: var(--text-muted); font-size: 0.72rem; font-family: var(--font-mono); }
+
+/* Day header */
+/* .fc .fc-col-header-cell-cushion { color: var(--text-secondary); font-size: 0.82rem; font-family: var(--font-mono); font-weight: 500; } */
+
+.fc .fc-col-header-cell-cushion { 
+    color: var(--text); /* Changed from var(--text-secondary) to make it pop */
+    font-size: 0.82rem; 
+    font-family: var(--font-mono); 
+    font-weight: 500; 
+}
+
+/* ── Day header slot-count badges ── */
+.hdr-date {
+    font-weight: 600;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+}
+
+
+
+
+.hdr-count {
+    font-size: 0.65rem;
+    color: var(--success);
+    font-weight: 500;
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    border-radius: var(--radius-sm);
+    padding: 1px 6px;
+    display: inline-block;
+    margin-top: 3px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.03em;
+}
+
+.hdr-count.hdr-zero {
+    color: var(--danger);
+    background: var(--danger-bg);
+    border-color: var(--danger-border);
+}
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+    #calendar { width: 100%; padding: var(--space-3); border-radius: var(--radius); }
+    .fc .fc-toolbar { flex-wrap: wrap; gap: var(--space-2); }
+    .fc .fc-toolbar-title { font-size: 0.95rem !important; }
+}

@@ -1,0 +1,277 @@
+/*
+ * members.css — User / Member Management Page
+ * Collaborators Booking Portal
+ *
+ * Depends on: theme.css, navbar.css, modal.css, footer.css
+ */
+
+/* ── Page layout ── */
+.members-page {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--space-6) var(--space-5) var(--space-12);
+}
+
+/* ── Page header row ── */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-6);
+    gap: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.page-title {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.02em;
+}
+
+.page-title span { color: var(--accent); }
+
+/* ── Toolbar (search + filter) ── */
+.members-toolbar {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    margin-bottom: var(--space-5);
+    flex-wrap: wrap;
+}
+
+.search-box {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px var(--space-3);
+    border-radius: var(--radius-sm);
+    width: 240px;
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+.search-box:focus { border-color: var(--accent); box-shadow: var(--shadow-glow); }
+.search-box::placeholder { color: var(--text-muted); }
+
+.filter-group { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+.pill {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 5px var(--space-3);
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition);
+    letter-spacing: 0.02em;
+}
+.pill:hover  { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ── Stats strip ── */
+.stats-strip {
+    display: flex;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+    flex-wrap: wrap;
+}
+
+.stat-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-3) var(--space-4);
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    flex: 1;
+    min-width: 100px;
+}
+
+.stat-chip-val {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1;
+}
+
+.stat-chip-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-family: var(--font-mono);
+}
+
+/* ── Members table ── */
+.members-table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.members-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.members-table thead th {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.members-table tbody tr {
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background var(--transition);
+}
+.members-table tbody tr:last-child { border-bottom: none; }
+.members-table tbody tr:hover      { background: var(--surface-2); }
+
+.members-table tbody td {
+    padding: var(--space-3) var(--space-4);
+    font-size: 0.84rem;
+    vertical-align: middle;
+}
+
+/* Inactive rows are dimmed */
+.members-table tbody tr.inactive { opacity: 0.5; }
+
+/* ── Member name cell ── */
+.member-name-cell { font-weight: 500; color: var(--text); }
+.member-discord   { font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px; }
+.member-username  { font-size: 0.72rem; color: var(--text-secondary); font-family: var(--font-mono); margin-top: 1px; }
+
+/* ── Badges ── */
+.badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    letter-spacing: 0.02em;
+    display: inline-block;
+}
+
+.badge-active   { background: var(--success-bg);  color: var(--success); border-color: var(--success-border); }
+.badge-inactive { background: var(--surface-2);   color: var(--text-muted); border-color: var(--border); }
+.badge-login    { background: var(--info-bg);     color: var(--info);    border-color: var(--info-border); }
+.badge-no-login { background: var(--surface-2);   color: var(--text-muted); border-color: var(--border); }
+
+/* Type badge gets its colour from a CSS custom prop set inline */
+.badge-type {
+    background: rgba(139,92,246,0.12);
+    color: var(--accent-2);
+    border-color: rgba(139,92,246,0.3);
+}
+
+/* ── Action buttons in table ── */
+.btn {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 5px var(--space-3);
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background var(--transition), color var(--transition), border-color var(--transition);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.btn-primary   { background: var(--accent);    color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+.btn-ghost     { background: transparent; color: var(--text-secondary); border-color: var(--border); }
+.btn-ghost:hover { background: var(--surface-3); color: var(--text); border-color: var(--text-muted); }
+
+.btn-warn      { background: transparent; color: var(--warn);    border-color: var(--warn-border); }
+.btn-warn:hover { background: var(--warn); color: #000; border-color: var(--warn); }
+
+.btn-danger    { background: transparent; color: var(--danger);  border-color: var(--danger-border); }
+.btn-danger:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+.btn-success   { background: transparent; color: var(--success); border-color: var(--success-border); }
+.btn-success:hover { background: var(--success); color: #000; border-color: var(--success); }
+
+.btn-sm { padding: 4px 9px; font-size: 0.68rem; }
+.btn-lg { padding: 9px var(--space-5); font-size: 0.82rem; }
+
+.row-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+/* ── Empty / loading states ── */
+.empty-state {
+    text-align: center;
+    padding: 60px var(--space-5);
+    color: var(--text-muted);
+}
+.empty-state .empty-icon { font-size: 2rem; margin-bottom: var(--space-3); }
+.empty-state p { font-size: 0.875rem; }
+
+.loading {
+    text-align: center;
+    padding: var(--space-10);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+
+/* ── Password strength indicator ── */
+.pw-strength-bar {
+    height: 3px;
+    border-radius: 2px;
+    margin-top: var(--space-2);
+    background: var(--border);
+    overflow: hidden;
+    transition: all var(--transition);
+}
+.pw-strength-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease, background 0.3s ease;
+    width: 0%;
+}
+.pw-strength-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    margin-top: 4px;
+    color: var(--text-muted);
+}
+
+/* ── Inline help text ── */
+.form-help {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: var(--space-1);
+    font-family: var(--font-mono);
+}
+
+/* ── Error/success inline feedback ── */
+.inline-error   { color: var(--danger);  font-size: 0.78rem; font-family: var(--font-mono); margin-top: var(--space-2); display: none; }
+.inline-success { color: var(--success); font-size: 0.78rem; font-family: var(--font-mono); margin-top: var(--space-2); display: none; }
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+    .members-page { padding: var(--space-4) var(--space-3); }
+    .members-table thead th:nth-child(n+4),
+    .members-table tbody td:nth-child(n+4) { display: none; }
+    .search-box { width: 100%; }
+    .page-header { flex-direction: column; align-items: flex-start; }
+}

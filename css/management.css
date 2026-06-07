@@ -1,0 +1,57 @@
+/*
+ * management.css — Admin Management Dashboard
+ * Collaborators Booking Portal
+ *
+ * Depends on: theme.css, navbar.css, calendar.css, modal.css
+ */
+
+/* ── Page layout ── */
+.management-page {
+    padding: var(--space-5) var(--space-4) var(--space-10);
+}
+
+/* ── Legend ── */
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-5);
+    margin-bottom: var(--space-5);
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+}
+
+.legend-box {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.legend-box-open    { background: #22d3a0; box-shadow: 0 0 6px rgba(34,211,160,0.4); }
+.legend-box-booked  { background: #3b82f6; box-shadow: 0 0 6px rgba(59,130,246,0.4); }
+.legend-box-noshow  { background: #f43f5e; box-shadow: 0 0 6px rgba(244,63,94,0.4); }
+
+/* ── Management calendar container ── */
+#calendar.management {
+    max-width: var(--max-width);
+}
+
+/* ── Header day counts (management-specific colours) ── */
+.hdr-count.management-count {
+    color: var(--accent);
+    background: var(--info-bg);
+    border-color: var(--info-border);
+}
+.hdr-count.management-count.hdr-zero {
+    color: var(--text-muted);
+    background: var(--surface-2);
+    border-color: var(--border);
+}

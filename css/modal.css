@@ -1,0 +1,253 @@
+/*
+ * modal.css — Dialog & Modal Overlays
+ * Collaborators Booking Portal
+ *
+ * Covers both <dialog> native modals (management, calendar pages)
+ * and .modal-overlay div modals (todo page).
+ *
+ * Depends on: theme.css
+ */
+
+/* ═══════════════════════════════════════
+   NATIVE <dialog> MODALS
+   (management.html, calendarMultiTimezone.html)
+   ═══════════════════════════════════════ */
+
+dialog {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-6);
+    width: 90%;
+    max-width: 460px;
+    box-sizing: border-box;
+    color: var(--text);
+    /* top accent stripe */
+    position: relative;
+    overflow: hidden;
+}
+
+dialog::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.modal-header {
+    font-family: var(--font-mono);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 0;
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-body {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--space-5);
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+/* Action buttons inside native dialog */
+.modal-btn {
+    padding: 11px var(--space-4);
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background var(--transition), transform 0.1s;
+    letter-spacing: 0.02em;
+    text-align: center;
+}
+.modal-btn:active { transform: scale(0.98); }
+
+.btn-modal-noshow {
+    background: var(--warn-bg);
+    color: var(--warn);
+    border-color: var(--warn-border);
+}
+.btn-modal-noshow:hover { background: var(--warn); color: #000; }
+
+.btn-modal-cancel {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border-color: var(--danger-border);
+}
+.btn-modal-cancel:hover { background: var(--danger); color: #fff; }
+
+.btn-modal-close {
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    border-color: var(--border);
+    margin-top: var(--space-1);
+}
+.btn-modal-close:hover { background: var(--surface-3); color: var(--text); }
+
+/* ═══════════════════════════════════════
+   DIV OVERLAY MODALS  (todo.html)
+   ═══════════════════════════════════════ */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-5);
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-6);
+    width: 100%;
+    max-width: var(--max-width-narrow);
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modal-slide-up 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.modal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    pointer-events: none;
+}
+
+@keyframes modal-slide-up {
+    from { transform: translateY(24px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-5);
+}
+
+.modal-title {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    line-height: 1;
+    transition: color var(--transition), background var(--transition);
+}
+.modal-close:hover { color: var(--text); background: var(--surface-3); }
+
+/* ── Form elements inside modals ── */
+.form-group { margin-bottom: var(--space-4); }
+
+.form-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: var(--space-2);
+}
+
+.form-control {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    padding: 9px var(--space-3);
+    border-radius: var(--radius);
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+.form-control:focus { border-color: var(--accent); box-shadow: var(--shadow-glow); }
+.form-control::placeholder { color: var(--text-muted); }
+
+select.form-control option { background: var(--surface-2); }
+textarea.form-control { resize: vertical; min-height: 80px; }
+
+.form-row { display: flex; gap: var(--space-3); }
+.form-row .form-group { flex: 1; }
+
+/* ── Member list (assign modal) ── */
+.member-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) var(--space-3);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background var(--transition), border-color var(--transition);
+    margin-bottom: var(--space-2);
+}
+.member-item:hover { background: var(--surface-2); border-color: var(--border); }
+.member-item.selected {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: var(--accent);
+}
+
+.member-name { font-size: 0.875rem; font-weight: 500; color: var(--text); }
+.member-type { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; font-family: var(--font-mono); }
+
+/* ── Modal footer (action row at bottom of div modals) ── */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-subtle);
+}
+
+/* ── Member list container ── */
+.member-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-height: 300px;
+    overflow-y: auto;
+}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — Collaborators Booking Portal</title>
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="/css/footer.css">
+</head>
+<body>
+<div id="navbar-container"></div>
+
+<main class="login-page">
+    <div class="login-card">
+        <h2>Admin Portal</h2>
+        <p class="subtitle">Sign in to manage your booking calendar.</p>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" autocomplete="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="btn-login">Log In</button>
+            <div id="errorMsg" class="login-error">Invalid username or password.</div>
+        </form>
+    </div>
+</main>
+
+<div id="footer-container"></div>
+<script src="../loader.js"></script>
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const errorMsg = document.getElementById('errorMsg');
+        errorMsg.style.display = 'none';
+
+        try {
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (res.ok) {
+                window.location.href = '/manage';
+            } else {
+                errorMsg.style.display = 'block';
+            }
+        } catch (err) {
+            alert('Network error occurred.');
+        }
+    });
+</script>
+</body>
+</html>

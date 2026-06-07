@@ -1,205 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Management Calendar</title>
+    <title>Management Dashboard — Collaborators Booking Portal</title>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
-    <style>
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 20px; 
-            background: #f8f9fa; 
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #2c3e50;
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin: 0 auto 20px auto;
-            max-width: 1100px;
-            width: 95%;
-            box-sizing: border-box;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .navbar-brand { 
-            color: white; 
-            margin: 0; 
-            font-size: 1.3rem;
-        }
-
-        .navbar-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .btn-view-public {
-            color: #ecf0f1;
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .btn-view-public:hover {
-            color: #3498db;
-            text-decoration: underline;
-        }
-
-        .btn-logout {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            font-size: 0.9rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.2s ease;
-        }
-
-        .btn-logout:hover {
-            background-color: #c0392b;
-        }
-
-        .legend { 
-            display: flex; 
-            justify-content: center; 
-            gap: 20px; 
-            margin-bottom: 20px; 
-            flex-wrap: wrap;
-        }
-        .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
-        .box { width: 15px; height: 15px; border-radius: 3px; }
-
-        #calendar { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin: 0 auto;
-            max-width: 1100px; 
-            width: 95%;
-        }
-
-        .hdr-date { font-weight: bold; color: #2c3e50; }
-        .hdr-count {
-            font-size: 0.75rem; color: #3788d8; font-weight: normal;
-            background: #eef2ff; border-radius: 4px; padding: 2px 6px;
-            display: inline-block; margin-top: 4px; border: 1px solid #d1d5db;
-        }
-        .hdr-count.hdr-zero { color: #666; background: #f3f4f6; border-color: #e5e7eb; }
-
-        /* MODAL DIALOG STYLES */
-        dialog {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            padding: 24px;
-            width: 90%;
-            max-width: 450px;
-            box-sizing: border-box;
-        }
-        dialog::backdrop {
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(3px);
-        }
-        .modal-header {
-            margin-top: 0;
-            color: #2c3e50;
-            font-size: 1.4rem;
-            border-bottom: 2px solid #ecf0f1;
-            padding-bottom: 10px;
-        }
-        .modal-body {
-            margin: 15px 0 25px 0;
-            font-size: 1rem;
-            color: #555;
-            line-height: 1.5;
-        }
-        .modal-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .modal-btn {
-            padding: 12px;
-            font-size: 0.95rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-            text-align: center;
-        }
-        .btn-modal-noshow { background: #f39c12; color: white; }
-        .btn-modal-noshow:hover { background: #d35400; }
-        .btn-modal-cancel { background: #e74c3c; color: white; }
-        .btn-modal-cancel:hover { background: #c0392b; }
-        .btn-modal-close { background: #bdc3c7; color: #333; margin-top: 5px; }
-        .btn-modal-close:hover { background: #95a5a6; }
-
-        @media (max-width: 767px) {
-            body { margin: 10px; }
-            .navbar { width: 100%; border-radius: 0; flex-direction: column; gap: 12px; text-align: center; }
-            .navbar-actions { flex-direction: column; gap: 10px; width: 100%; }
-            .btn-logout { width: 100%; }
-            #calendar { width: 100%; padding: 10px; border-radius: 0; }
-            .legend { gap: 10px; }
-        }
-    </style>
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/calendar.css">
+    <link rel="stylesheet" href="/css/management.css">
+    <link rel="stylesheet" href="/css/modal.css">
+    <link rel="stylesheet" href="/css/footer.css">
 </head>
 <body>
+    <!-- Management uses its own inline navbar (with logout button) instead of the shared one -->
     <nav class="navbar">
-        <h1 class="navbar-brand">📋 Management Dashboard</h1>
+        <a href="/" class="navbar-brand">
+            <span class="brand-dot"></span>
+            Management Dashboard
+        </a>
         <div class="navbar-actions">
-            <a href="/" class="btn-view-public">👁️ View Booking Site</a>
+            <a href="/" class="btn-view-public">👁 View Booking Site</a>
             <button id="logoutBtn" class="btn-logout">Logout</button>
         </div>
-    </nav>
-    
-    <div class="legend">
-        <div class="legend-item"><div class="box" style="background: #28a745;"></div> Open Slot</div>
-        <div class="legend-item"><div class="box" style="background: #3788d8;"></div> Booked</div>
-        <div class="legend-item"><div class="box" style="background: #e74c3c;"></div> No Show</div>
-    </div>
 
-    <div id='calendar'></div>
+    <div class="topbar-actions">
+    <button class="btn btn-ghost" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">&#9790;</button>
+    </div>
+    
+    </nav>
+
+    <div class="management-page">
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box legend-box-open"></div> Open Slot
+            </div>
+            <div class="legend-item">
+                <div class="legend-box legend-box-booked"></div> Booked
+            </div>
+            <div class="legend-item">
+                <div class="legend-box legend-box-noshow"></div> No Show
+            </div>
+        </div>
+
+        <div id='calendar' class="management"></div>
+    </div>
 
     <dialog id="bookingModal">
         <h3 id="modalTitle" class="modal-header">Manage Booking</h3>
-        <div class="modal-body">
-            Select an action to perform on this slot:
-        </div>
+        <div class="modal-body">Select an action to perform on this slot:</div>
         <div class="modal-actions">
             <button id="modalNoShowBtn" class="modal-btn btn-modal-noshow">Mark as No Show</button>
-            <button id="modalCancelBtn" class="modal-btn btn-modal-cancel">Cancel & Reset Booking</button>
+            <button id="modalCancelBtn" class="modal-btn btn-modal-cancel">Cancel &amp; Reset Booking</button>
             <button id="modalCloseBtn" class="modal-btn btn-modal-close">Close</button>
         </div>
     </dialog>
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-        const calendarEl = document.getElementById('calendar');
-        const logoutBtn = document.getElementById('logoutBtn');
-        
-        // Modal elements
-        const modal = document.getElementById('bookingModal');
-        const modalTitle = document.getElementById('modalTitle');
+        const calendarEl   = document.getElementById('calendar');
+        const logoutBtn    = document.getElementById('logoutBtn');
+        const modal        = document.getElementById('bookingModal');
+        const modalTitle   = document.getElementById('modalTitle');
         const modalNoShowBtn = document.getElementById('modalNoShowBtn');
         const modalCancelBtn = document.getElementById('modalCancelBtn');
-        const modalCloseBtn = document.getElementById('modalCloseBtn');
-        
-        let selectedEvent = null; 
+        const modalCloseBtn  = document.getElementById('modalCloseBtn');
+
+        let selectedEvent = null;
         let isMobile = window.innerWidth < 768;
 
         function handleAuthError() {
             alert("Your session has expired. Please log in again.");
-            window.location.href = '/login'; 
+            window.location.href = '/login';
         }
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -217,22 +88,18 @@
                 const allEvents = calendar.getEvents();
                 const activeBookings = allEvents.filter(event => {
                     const isSameDay = event.start.toDateString() === arg.date.toDateString();
-                    const isBooked = !event.extendedProps.available;
-                    const isNotNoShow = !event.extendedProps.noShow;
-                    return isSameDay && isBooked && isNotNoShow;
+                    return isSameDay && !event.extendedProps.available && !event.extendedProps.noShow;
                 }).length;
 
-                const countClass = activeBookings === 0 ? 'hdr-count hdr-zero' : 'hdr-count';
-                let label = activeBookings === 1 ? '1 Active Booking' : `${activeBookings} Active Bookings`;
-                
-                return { 
-                    html: `<div class="hdr-date">${arg.text}</div><div class="${countClass}">${label}</div>` 
-                };
+                const countClass = activeBookings === 0
+                    ? 'hdr-count management-count hdr-zero'
+                    : 'hdr-count management-count';
+                const label = activeBookings === 1 ? '1 Active Booking' : `${activeBookings} Active Bookings`;
+                return { html: `<div class="hdr-date">${arg.text}</div><div class="${countClass}">${label}</div>` };
             },
 
             windowResize: function() {
-                if (window.innerWidth < 768) calendar.changeView('timeGridDay');
-                else calendar.changeView('timeGridWeek');
+                calendar.changeView(window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek');
             },
 
             events: async function(info, successCallback, failureCallback) {
@@ -243,19 +110,15 @@
                     const data = await res.json();
                     const formatted = data.map(row => ({
                         id: row.id,
-                        title: row.title + ' ' + row.slot_category, 
+                        title: row.title + ' ' + row.slot_category,
                         start: row.start,
-                        backgroundColor: row.title.includes('🚩') ? '#e74c3c' : 
-                                         (row.title === 'Available' ? '#28a745' : '#3788d8'),
+                        backgroundColor: row.title.includes('🚩') ? '#f43f5e' :
+                                         (row.title === 'Available' ? '#22d3a0' : '#3b82f6'),
                         allDay: false,
-                        extendedProps: { 
-                            available: row.is_available,
-                            noShow: row.is_no_show 
-                        }
+                        extendedProps: { available: row.is_available, noShow: row.is_no_show }
                     }));
-                    
                     successCallback(formatted);
-                    calendar.render(); 
+                    calendar.render();
                 } catch (err) {
                     console.error("Management Fetch Error:", err);
                     failureCallback(err);
@@ -264,82 +127,52 @@
 
             eventClick: function(info) {
                 const props = info.event.extendedProps;
-
-                if (props.available) {
-                    alert("This slot is still available.");
-                    return;
-                }
+                if (props.available) { alert("This slot is still available."); return; }
 
                 selectedEvent = info.event;
-                
-                // If it's already a No Show, hide that button option
                 modalNoShowBtn.style.display = props.noShow ? 'none' : 'block';
                 modalTitle.innerText = `Manage: ${selectedEvent.title}`;
-                
                 modal.showModal();
             }
         });
 
         calendar.render();
 
-        // --- INSTANT MODAL ACTION HANDLERS ---
-
         modalNoShowBtn.addEventListener('click', async () => {
             if (!selectedEvent) return;
-            
             try {
                 const res = await fetch(`/api/admin/noshow/${selectedEvent.id}`, { method: 'POST' });
                 if (res.status === 401) { handleAuthError(); return; }
-
-                if (res.ok) {
-                    modal.close();
-                    calendar.refetchEvents();
-                } else {
-                    alert("Failed to update status.");
-                }
-            } catch (err) {
-                alert("Error connecting to server.");
-            }
+                if (res.ok) { modal.close(); calendar.refetchEvents(); }
+                else alert("Failed to update status.");
+            } catch { alert("Error connecting to server."); }
         });
 
         modalCancelBtn.addEventListener('click', async () => {
             if (!selectedEvent) return;
-
             try {
                 const res = await fetch(`/api/admin/cancel/${selectedEvent.id}`, { method: 'POST' });
                 if (res.status === 401) { handleAuthError(); return; }
-
-                if (res.ok) {
-                    modal.close();
-                    calendar.refetchEvents();
-                } else {
-                    alert("Failed to cancel booking.");
-                }
-            } catch (err) {
-                alert("Error connecting to server.");
-            }
+                if (res.ok) { modal.close(); calendar.refetchEvents(); }
+                else alert("Failed to cancel booking.");
+            } catch { alert("Error connecting to server."); }
         });
 
-        modalCloseBtn.addEventListener('click', () => {
-            modal.close();
-        });
+        modalCloseBtn.addEventListener('click', () => modal.close());
 
-        // --- LOGOUT BUTTON EVENT LISTENER ---
         logoutBtn.addEventListener('click', async () => {
             if (confirm("Are you sure you want to logout?")) {
                 try {
                     const res = await fetch('/api/admin/logout', { method: 'POST' });
-                    if (res.ok) {
-                        window.location.href = '/'; 
-                    } else {
-                        alert("Logout failed execution on server.");
-                    }
-                } catch (err) {
-                    alert("Network error trying to log out.");
-                }
+                    if (res.ok) window.location.href = '/';
+                    else alert("Logout failed.");
+                } catch { alert("Network error trying to log out."); }
             }
         });
       });
     </script>
+    <script src="loader.js"></script>
+    <script src="theme.js"></script>
+    <div id="footer-container"></div>
 </body>
 </html>

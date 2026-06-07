@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Access — Task Board</title>
+    <link rel="stylesheet" href="/css/theme.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: var(--bg);
+            font-family: var(--font-sans, sans-serif);
+            margin: 0;
+        }
+        .login-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: var(--space-8, 32px);
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: var(--space-2, 8px);
+            text-align: center;
+        }
+        .login-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: var(--space-6, 24px);
+        }
+        .form-group {
+            margin-bottom: var(--space-4, 16px);
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            box-sizing: border-box;
+        }
+        .form-group input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        .alert-error {
+            background: rgba(255, 74, 74, 0.1);
+            border: 1px solid #ff4a4a;
+            color: #ff4a4a;
+            padding: 10px;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent, #007acc);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-submit:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <div class="login-title">Task Board Access</div>
+    <div class="login-subtitle">Sign in using your project member credentials</div>
+
+    <div id="errorBox" class="alert-error"></div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" required autocomplete="username">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-submit">Sign In</button>
+    </form>
+</div>
+
+<script>
+async function handleLogin(e) {
+    e.preventDefault();
+    const errorBox = document.getElementById('errorBox');
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    errorBox.style.display = 'none';
+
+    try {
+        const res = await fetch('/api/auth/member-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok && data.success) {
+            // Success! Send them back to the dashboard layout
+            window.location.href = '/todo.html';
+        } else {
+            errorBox.textContent = data.error || 'Login verification failed.';
+            errorBox.style.display = 'block';
+        }
+    } catch (err) {
+        errorBox.textContent = 'Unable to connect to auth services.';
+        errorBox.style.display = 'block';
+    }
+}
+</script>
+</body>
+</html>

@@ -1,91 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collaborators Booking Portal</title>
+    <title>Slot Selection — Collaborators Booking Portal</title>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
-<style>
-    body { margin: 10px; background: #f4f4f9; }
-    h2 { text-align: center; color: #2c3e50; margin-bottom: 5px; font-weight: bold; }
-    .timezone-info { text-align: center; font-size: 1rem; color: #666; margin-bottom: 20px; font-style: italic; font-weight: bold; }
-
-    .navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #2c3e50;
-        padding: 10px 20px;
-        border-radius: 8px;
-        margin: 0 auto 20px auto;
-        max-width: 1100px;
-        width: 95%;
-        box-sizing: border-box;
-    }
-    .navbar-brand {
-        color: white;
-        font-weight: bold;
-        font-size: 1.2rem;
-        text-decoration: none;
-    }
-    .navbar-links a {
-        color: #ecf0f1;
-        text-decoration: none;
-        font-size: 0.95rem;
-        padding: 6px 12px;
-        border-radius: 4px;
-        transition: background 0.2s;
-    }
-    .navbar-links a:hover {
-        background: #34495e;
-    }
-    
-    #calendar { 
-        background: white; padding: 20px; border-radius: 12px; 
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 0 auto;
-        max-width: 900px; width: 95%;
-    }
-
-    /* Header Count Styling */
-    .hdr-date { font-weight: bold; color: #2c3e50; }
-    .hdr-count {
-        font-size: 0.75rem; color: #28a745; font-weight: normal;
-        background: #e8f5e9; border-radius: 4px; padding: 2px 6px;
-        display: inline-block; margin-top: 4px; border: 1px solid #c8e6c9;
-    }
-
-    /* Red Alert for 0 Slots */
-    .hdr-count.hdr-zero {
-        color: #d32f2f; background: #ffebee; border: 1px solid #ffcdd2;
-    }
-
-    .fc .fc-button { padding: 8px 12px; font-size: 14px; }
-    .fc .fc-toolbar-title { font-size: 1.2rem !important; }
-
-    @media (max-width: 767px) {
-        body { margin: 10px; }
-        #calendar { width: 100%; padding: 10px; border-radius: 0; }
-        .navbar { width: 100%; border-radius: 0; margin-bottom: 10px; }
-    }
-</style>
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/calendar.css">
+    <link rel="stylesheet" href="/css/footer.css">
 </head>
 <body>
-    <nav class="navbar">
-    <a href="/" class="navbar-brand">🚀 Collaborators Booking Portal</a>
-    <div class="navbar-links">
-        <a href="/manage">Dashboard Admin</a>
-    </div>
-    </nav>
-    <h2>🔍 Slot Selection </h2>
-    <div class="timezone-info">🕒 All times are displayed in your local timezone.</div>
-    <div class="timezone-info">Please book collaborator slots, only book staff slots if you are staff.</div>
-    <div id='calendar'></div>
+    <div id="navbar-container"></div>
 
+    <div class="calendar-page">
+        <h2 class="calendar-heading">🔍 Slot Selection</h2>
+        <p class="calendar-hint">🕒 All times are displayed in your local timezone.</p>
+        <p class="calendar-notice">Please book collaborator slots. Only book staff slots if you are staff.</p>
+        <div id='calendar'></div>
+    </div>
+
+    <div id="footer-container"></div>
+    <script src="loader.js"></script>
     <script>
 document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendar');
     let isMobile = window.innerWidth < 768;
-    
-    // Get today's date in YYYY-MM-DD format for the validRange
     const todayStr = new Date().toISOString().split('T')[0];
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -93,12 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
         timeZone: 'local',
         allDaySlot: false,
         height: 'auto',
-        
-        // Prevent users from navigating to the past
-        validRange: {
-            start: todayStr
-        },
-
+        validRange: { start: todayStr },
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
@@ -107,25 +41,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
         dayHeaderContent: function(arg) {
             const allEvents = calendar.getEvents();
-            const count = allEvents.filter(event => 
+            const count = allEvents.filter(event =>
                 event.start.toDateString() === arg.date.toDateString()
             ).length;
 
             const isPast = arg.date < new Date().setHours(0,0,0,0);
-            
             if (isPast) {
                 return { html: `<div class="hdr-date">${arg.text}</div>` };
             }
 
             const countClass = count === 0 ? 'hdr-count hdr-zero' : 'hdr-count';
-            let label = count === 1 ? '1 slot' : `${count} slots`;
-            
+            const label = count === 1 ? '1 slot' : `${count} slots`;
             return { html: `<div class="hdr-date">${arg.text}</div><div class="${countClass}">${label}</div>` };
         },
 
         windowResize: function() {
-            if (window.innerWidth < 768) calendar.changeView('timeGridDay');
-            else calendar.changeView('timeGridWeek');
+            calendar.changeView(window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek');
         },
 
         events: async function(info, successCallback, failureCallback) {
@@ -133,8 +64,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const res = await fetch('/api/available-slots');
                 const data = await res.json();
                 const formatted = data.map(row => ({
-                    id: row.id, title: row.title, start: row.start, 
-                    backgroundColor: '#28a745', borderColor: '#1e7e34'
+                    id: row.id, title: row.title, start: row.start,
+                    backgroundColor: '#22d3a0', borderColor: '#16a37a'
                 }));
                 successCallback(formatted);
             } catch (err) { failureCallback(err); }
@@ -143,20 +74,19 @@ document.addEventListener('DOMContentLoaded', function() {
         eventClick: function(info) {
             const dateLabel = info.event.start.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
             const timeLabel = info.event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
+
             if (info.event.start < new Date()) {
                 alert("This slot has already started or passed.");
                 return;
             }
 
-            const userName = prompt(`Booking: ${dateLabel} at ${timeLabel}. \n\nEnter your name:`);
+            const userName = prompt(`Booking: ${dateLabel} at ${timeLabel}.\n\nEnter your name:`);
             if (userName && userName.trim()) {
                 bookSlot(info.event.id, userName.trim());
             }
         }
     });
 
-    // Integrated booking function to allow refetching without reload
     async function bookSlot(slotId, userName) {
         try {
             const response = await fetch('/api/book', {
@@ -167,18 +97,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (response.ok) {
                 alert(`Success! Thanks ${userName}, your slot is confirmed.`);
-                // Refetch events from server and stay on current date
-                calendar.refetchEvents(); 
+                calendar.refetchEvents();
             } else {
                 alert("Booking failed: " + await response.text());
             }
-        } catch (err) { 
-            alert("Connection error."); 
+        } catch (err) {
+            alert("Connection error.");
         }
     }
 
     calendar.render();
 });
     </script>
+    <script src="theme.js"></script>
 </body>
 </html>

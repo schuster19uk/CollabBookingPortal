@@ -25,3 +25,5 @@ Thumbs.db
 # Build/Dist folders (if you use TypeScript or a bundler later)
 dist/
 build/
+/viewsOld/*
+/old

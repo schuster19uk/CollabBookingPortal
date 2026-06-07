@@ -1,0 +1,28 @@
+/*
+ * footer.css — Site Footer
+ * Collaborators Booking Portal
+ *
+ * Depends on: theme.css
+ */
+
+.site-footer {
+    margin-top: var(--space-12);
+    padding: var(--space-6) var(--space-5);
+    border-top: 1px solid var(--border-subtle);
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    letter-spacing: 0.03em;
+}
+
+.site-footer a {
+    color: var(--text-secondary);
+    transition: color var(--transition);
+}
+.site-footer a:hover { color: var(--accent); }
+
+.site-footer .footer-sep {
+    margin: 0 var(--space-2);
+    opacity: 0.4;
+}

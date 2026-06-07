@@ -1,0 +1,189 @@
+/*
+ * theme.css — Global Design System
+ * Collaborators Booking Portal
+ *
+ * The single source of truth for all colours, typography, spacing,
+ * and visual tokens across every page.
+ *
+ * Usage: <link rel="stylesheet" href="/css/theme.css">
+ * Import order: theme.css → component CSS → page-specific overrides (if any)
+ */
+
+/* ─────────────────────────────────────────────
+   @font-face / Google Fonts
+   ───────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
+/* ─────────────────────────────────────────────
+   DARK THEME (default)
+   ───────────────────────────────────────────── */
+:root {
+    /* --- Core Palette --- */
+    --bg:              #0d1117;        /* page background */
+    --bg-alt:          #101620;        /* subtle section bg */
+    --surface:         #161b26;        /* cards, panels */
+    --surface-2:       #1e2436;        /* inputs, nested surfaces */
+    --surface-3:       #252d42;        /* hover rows, active states */
+    --border:          #2a3350;        /* default borders */
+    --border-subtle:   #1e2436;        /* hairline separators */
+
+    /* --- Brand Accent --- */
+    --accent:          #3b82f6;        /* primary blue */
+    --accent-hover:    #2563eb;
+    --accent-2:        #8b5cf6;        /* secondary violet */
+    --accent-glow:     rgba(59, 130, 246, 0.15);
+
+    /* --- Semantic --- */
+    --success:         #22d3a0;
+    --success-bg:      rgba(34, 211, 160, 0.12);
+    --success-border:  rgba(34, 211, 160, 0.3);
+    --warn:            #f59e0b;
+    --warn-bg:         rgba(245, 158, 11, 0.12);
+    --warn-border:     rgba(245, 158, 11, 0.3);
+    --danger:          #f43f5e;
+    --danger-bg:       rgba(244, 63, 94, 0.12);
+    --danger-border:   rgba(244, 63, 94, 0.3);
+    --info:            #38bdf8;
+    --info-bg:         rgba(56, 189, 248, 0.12);
+    --info-border:     rgba(56, 189, 248, 0.3);
+
+    /* --- Typography --- */
+    --text:            #e2e8f0;        /* primary text */
+    --text-secondary:  #94a3b8;        /* secondary / placeholder */
+    --text-muted:      #4b5675;        /* disabled / faint */
+    --font-sans:       'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono:       'IBM Plex Mono', 'Fira Code', Consolas, monospace;
+
+    /* --- Spacing Scale --- */
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3:  12px;
+    --space-4:  16px;
+    --space-5:  20px;
+    --space-6:  24px;
+    --space-8:  32px;
+    --space-10: 40px;
+    --space-12: 48px;
+
+    /* --- Border Radius --- */
+    --radius-sm:  4px;
+    --radius:     8px;
+    --radius-md:  10px;
+    --radius-lg:  14px;
+    --radius-xl:  20px;
+    --radius-full: 9999px;
+
+    /* --- Shadows --- */
+    --shadow-sm:  0 1px 3px rgba(0,0,0,0.4);
+    --shadow:     0 4px 16px rgba(0,0,0,0.5);
+    --shadow-lg:  0 10px 40px rgba(0,0,0,0.7);
+    --shadow-glow: 0 0 0 3px var(--accent-glow);
+
+    /* --- Transitions --- */
+    --transition: 0.15s ease;
+    --transition-slow: 0.3s ease;
+
+    /* --- Layout --- */
+    --max-width:  1100px;
+    --max-width-narrow: 500px;
+
+    /* --- FullCalendar overrides --- */
+    --fc-bg:                var(--surface);
+    --fc-border:            var(--border);
+    --fc-today-bg:          rgba(59, 130, 246, 0.08);
+    --fc-event-text:        #fff;
+    --fc-button-bg:         var(--surface-3);
+    --fc-button-text:       var(--text);
+    --fc-button-border:     var(--border);
+    --fc-button-hover-bg:   var(--accent);
+    --fc-button-active-bg:  var(--accent);
+}
+
+/* ─────────────────────────────────────────────
+   LIGHT THEME  (opt-in via data-theme="light")
+   ───────────────────────────────────────────── */
+[data-theme="light"] {
+    --bg:              #f0f4fa;
+    --bg-alt:          #e8edf5;
+    --surface:         #ffffff;
+    --surface-2:       #f5f7fc;
+    --surface-3:       #eaeff8;
+    --border:          #d1d9eb;
+    --border-subtle:   #e4e9f4;
+
+    --accent:          #2563eb;
+    --accent-hover:    #1d4ed8;
+    --accent-2:        #7c3aed;
+    --accent-glow:     rgba(37, 99, 235, 0.15);
+
+    --success:         #059669;
+    --success-bg:      rgba(5, 150, 105, 0.08);
+    --success-border:  rgba(5, 150, 105, 0.25);
+    --warn:            #d97706;
+    --warn-bg:         rgba(217, 119, 6, 0.08);
+    --warn-border:     rgba(217, 119, 6, 0.25);
+    --danger:          #dc2626;
+    --danger-bg:       rgba(220, 38, 38, 0.08);
+    --danger-border:   rgba(220, 38, 38, 0.25);
+    --info:            #0284c7;
+    --info-bg:         rgba(2, 132, 199, 0.08);
+    --info-border:     rgba(2, 132, 199, 0.25);
+
+    --text:            #1e293b;
+    --text-secondary:  #64748b;
+    --text-muted:      #94a3b8;
+
+    --shadow-sm:  0 1px 3px rgba(0,0,0,0.08);
+    --shadow:     0 4px 16px rgba(0,0,0,0.1);
+    --shadow-lg:  0 10px 40px rgba(0,0,0,0.18);
+
+    --fc-bg:           var(--surface);
+    --fc-border:       var(--border);
+    --fc-today-bg:     rgba(37, 99, 235, 0.06);
+    --fc-button-bg:    var(--surface-2);
+    --fc-button-text:  var(--text);
+    --fc-button-border: var(--border);
+    --fc-button-hover-bg: var(--accent);
+    --fc-button-active-bg: var(--accent);
+}
+
+
+/* ─────────────────────────────────────────────
+   RESETS & BASE
+   ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); text-decoration: none; transition: color var(--transition); }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+input, select, textarea, button { font-family: inherit; }
+
+/* ─────────────────────────────────────────────
+   SCROLLBAR (dark surfaces)
+   ───────────────────────────────────────────── */
+::-webkit-scrollbar              { width: 6px; height: 6px; }
+::-webkit-scrollbar-track        { background: var(--bg-alt); }
+::-webkit-scrollbar-thumb        { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover  { background: var(--text-muted); }
+
+/* ─────────────────────────────────────────────
+   UTILITY HELPERS  (used across all pages)
+   ───────────────────────────────────────────── */
+.text-muted    { color: var(--text-secondary); }
+.text-accent   { color: var(--accent); }
+.text-success  { color: var(--success); }
+.text-warn     { color: var(--warn); }
+.text-danger   { color: var(--danger); }
+.font-mono     { font-family: var(--font-mono); }
+.sr-only       { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
