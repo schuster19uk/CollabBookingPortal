@@ -23,7 +23,8 @@ app.use(session({
     }
 }));
 
-app.use(express.static('views'));
+//app.use(express.static('views'));
+app.use(express.static(path.join(__dirname, 'views')));
 app.use('/css', express.static(path.join(__dirname, 'css')));
 
 
