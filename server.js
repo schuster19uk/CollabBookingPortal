@@ -17,14 +17,13 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        maxAge: 15 * 60 * 1000, // Session auto-expires after 15 minutes of inactivity
+        maxAge: 60 * 60 * 1000, // Session auto-expires after 60 minutes of inactivity
         secure: false,          // Set to true if your server uses HTTPS/SSL in production
         httpOnly: true          // Helps protect against Cross-Site Scripting (XSS) attacks
     }
 }));
 
-//app.use(express.static('views'));
-app.use(express.static(path.join(__dirname, 'views')));
+app.use(express.static('views'));
 app.use('/css', express.static(path.join(__dirname, 'css')));
 
 
