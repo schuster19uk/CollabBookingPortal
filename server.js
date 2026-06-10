@@ -171,8 +171,16 @@ app.post('/api/todo/login', async (req, res) => {
     }
 });
 
-
-
+// ── GET CURRENT USER PROFILE ──────────────────────────────────────────────
+app.get('/api/todo/me', memberAuth, (req, res) => {
+    if (req.session.memberId && req.session.memberDisplayName) {
+        return res.json({
+            member_id: parseInt(req.session.memberId),
+            display_name: req.session.memberDisplayName
+        });
+    }
+    res.status(401).json({ error: 'User session not found.' });
+});
 
 // NEW: Multi-timezone Login endpoint
 app.post('/api/multi-admin/login', (req, res) => {
