@@ -17,7 +17,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        maxAge: 60 * 60 * 1000, // Session auto-expires after 60 minutes of inactivity
+        maxAge: 600 * 60 * 1000, // Session auto-expires after 600 minutes of inactivity
         secure: false,          // Set to true if your server uses HTTPS/SSL in production
         httpOnly: true          // Helps protect against Cross-Site Scripting (XSS) attacks
     }
