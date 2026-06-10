@@ -13,7 +13,7 @@ app.locals.db = pool;
 
 // --- SESSION CONFIGURATION ---
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'fallback_secure_string_12345',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: { 
