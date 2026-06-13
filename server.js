@@ -229,22 +229,63 @@ app.get('/api/available-slots', async (req, res) => {
 });
 
 // Book a slot
+// app.post('/api/book', async (req, res) => {
+//     const { slotId, userName } = req.body;
+//     try {
+//         const result = await pool.query(
+//             `UPDATE booking_slots 
+//              SET booked_by_id = 'WEB_VIP', booked_by_name = ?, is_available = FALSE 
+//              WHERE slot_id = ? AND is_available = TRUE AND is_special_slot = TRUE`, 
+//             [userName, slotId]
+//         );
+        
+//         result.affectedRows > 0 ? res.sendStatus(200) : res.status(400).send("Slot already taken");
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send("Database error");
+//     }
+// });
+
 app.post('/api/book', async (req, res) => {
     const { slotId, userName } = req.body;
     try {
-        const result = await pool.query(
-            `UPDATE booking_slots 
-             SET booked_by_id = 'WEB_VIP', booked_by_name = ?, is_available = FALSE 
-             WHERE slot_id = ? AND is_available = TRUE AND is_special_slot = TRUE`, 
-            [userName, slotId]
+        // Fetch the slot category first
+        const rows = await pool.query(
+            `SELECT slot_category FROM booking_slots WHERE slot_id = ?`,
+            [slotId]
         );
-        
+
+        if (rows.length === 0) {
+            return res.status(400).send("Slot not found");
+        }
+
+        const isStaffOrCollaborator = ['staff', 'collaborator'].includes(rows[0].slot_category);
+
+        let result;
+
+        if (isStaffOrCollaborator) {
+            result = await pool.query(
+                `UPDATE booking_slots 
+                 SET booked_by_id = 'WEB_VIP', booked_by_name = ?, is_available = FALSE 
+                 WHERE slot_id = ? AND is_available = TRUE AND is_special_slot = TRUE`,
+                [userName, slotId]
+            );
+        } else {
+            result = await pool.query(
+                `UPDATE booking_slots 
+                 SET booked_by_id = 'WEB_VIP', booked_by_name = ?, is_available = FALSE 
+                 WHERE slot_id = ? AND is_available = TRUE AND is_special_slot = FALSE`,
+                [userName, slotId]
+            );
+        }
+
         result.affectedRows > 0 ? res.sendStatus(200) : res.status(400).send("Slot already taken");
     } catch (err) {
         console.error(err);
         res.status(500).send("Database error");
     }
 });
+
 
 // --- MANAGEMENT PRIVATE API ---
 
