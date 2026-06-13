@@ -288,7 +288,7 @@ app.get('/api/multi-admin/bookings', multiAdminAuth, async (req, res) => {
             if (row.is_no_show) {
                 title = `🚩 ${row.booked_by_name || 'No Show'}`;
             } else if (!row.is_available) {
-                title = row.booked_by_name || 'Booked';
+                title = row.booked_by_name || 'Not Available';
             }
 
             return {

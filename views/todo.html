@@ -570,7 +570,6 @@ function openNewTaskModal() {
     document.getElementById('nt_desc').value     = '';
     document.getElementById('nt_priority').value = '2';
     document.getElementById('nt_status').value   = '1';
-    console.log("Setting default assignee to logged-in user:", loggedInUser);
     document.getElementById('nt_assignee').value = loggedInUser ? loggedInUser.member_id : '';
     document.getElementById('nt_due').value      = '';
     openModal('newTaskModal');
